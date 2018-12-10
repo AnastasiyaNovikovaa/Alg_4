@@ -1,19 +1,18 @@
 #pragma once
 #include <stdexcept>
 #include <iostream>
-#include "../../Laba3_3(alg)/Laba3_3(alg)/Tree.h"
-#include "../../Laba3_3(alg)/Laba3_3(alg)/Tree.cpp"
 
-class Massiv  //Наш класс
+
+class Array  //Наш класс
 {
 public:
 	void Create(int *&Arr, const int N); //Метод выделения памяти под массив
 	void Delete(int *Arr);  //Метод освобождения памяти
 	void Fill(int *Arr, const int N); //Метод заполнения массива значениями
 	void Show(int *Arr, const int N);//Метод отображения массива на экране
-	int* heapSort(int *Arr, int N);
+	void heapSort(int *Arr, int N);
 	int binarySearch(int *Arr, int N, int searchelem);
-	void quickSort(int *Arr, int left, int N);
+	int *quickSort(int *Arr,size_t N);
 	void bubble_sort(int *Arr, int N);
 	void Bogo_sort(int *Arr, int N);
 	void CharCreate(char *&Arr, const int N);
@@ -21,28 +20,28 @@ public:
 	void CharShow(char *Arr, const int N);
 	void CountingSort(char* Arr, int N);
 };
-void Massiv::Create(int *&Arr, const int N) //Вне класса описываем метод выделения памяти под массив
+void Array::Create(int *&Arr, const int N) //Вне класса описываем метод выделения памяти под массив
 {
 	if (N > 0)
 		Arr = new int[N];
 	else
 		std::cout << "Error in size of array ";
 }
-void Massiv::CharCreate(char *&Arr, const int N) //Вне класса описываем метод выделения памяти под массив
+void Array::CharCreate(char *&Arr, const int N) //Вне класса описываем метод выделения памяти под массив
 {
 	setlocale(LC_ALL, "Russian");
 	Arr = new char[N];
 }
-void Massiv::Delete(int *Arr)    //Вне класса описываем метод освобождения памяти
+void Array::Delete(int *Arr)    //Вне класса описываем метод освобождения памяти
 {
 	delete[]Arr;    //очищаем память от массива
 	Arr = NULL;   //указываем, что теперь массив должен находится в новом зарезервированном месте и указывает вникуда
 }
-void Massiv::Fill(int *Arr, const int N)    // определяем функцию заполнения рандомного массива
+void Array::Fill(int *Arr, const int N)    // определяем функцию заполнения рандомного массива
 {
 	for (int i = 0; i < N; i++) Arr[i] = rand() % N + 1;
 }
-void Massiv::CharFill(char *Arr, const int N)    // определяем функцию заполнения рандомного массива
+void Array::CharFill(char *Arr, const int N)    // определяем функцию заполнения рандомного массива
 {
 	char letter;
 	std::cout << "Enter an array of char:\n";
@@ -52,33 +51,60 @@ void Massiv::CharFill(char *Arr, const int N)    // определяем фун�
 		Arr[i] = letter;
 	}
 }
-void Massiv::CharShow(char *Arr, const int N)  //определяем функцию отображения массива на экране
+void Array::CharShow(char *Arr, const int N)  //определяем функцию отображения массива на экране
 {
 	for (int i = 0; i < N; i++) std::cout << Arr[i] << "  ";
 }
-void Massiv::Show(int *Arr, const int N)  //определяем функцию отображения массива на экране
+void Array::Show(int *Arr, const int N)  //определяем функцию отображения массива на экране
 {
 	for (int i = 0; i < N; i++) std::cout << Arr[i] << "  ";
 }
 
-int* Massiv::heapSort(int *Arr, int N)
+
+ //Функция  формирования кучи
+void createheap(int *Arr, int root, int bottom_row)
 {
-	auto A = new Tree();
-	for (int i = 0; i < N; i++)
-		A->insert(Arr[i]);
-	int i = 0;
-	Iterator* biterator1 = A->Bcreate_iterator();
-
-	while (biterator1->has_next())
-
+	int maxChild; // индекс максимального потомка
+	int done = 0; // флаг того, что куча сформирована
+	// Пока не дошли до последнего ряда
+	while ((root * 2 <= bottom_row) && (!done))
 	{
-		Arr[i++] = biterator1->next();
-    }
-	
-	return Arr;
-	
+		if (root * 2 == bottom_row)    // если мы в последнем ряду, 
+			maxChild = root * 2;    // запоминаем левый потомок
+		  // иначе запоминаем больший потомок из двух
+		else if (Arr[root * 2] > Arr[root * 2 + 1])
+			maxChild = root * 2;
+		else
+			maxChild = root * 2 + 1;
+		// если элемент вершины меньше максимального потомка
+		if (Arr[root] < Arr[maxChild])
+		{
+			int swap = Arr[root]; // меняем их местами
+			Arr[root] = Arr[maxChild];
+			Arr[maxChild] = swap;
+			root = maxChild;
+		}
+		else // иначе
+			done = 1; // пирамида сформирована
+	}
 }
-int Massiv::binarySearch(int *Arr, int N, int searchelem)
+// Функция сортировки на куче
+void  Array::heapSort(int *Arr, int N)
+{
+	// Формируем нижний ряд пирамиды
+	for (int i = (N / 2) - 1; i >= 0; i--)
+		createheap(Arr, i, N - 1);
+	// Просеиваем через пирамиду остальные элементы
+	for (int i = N - 1; i >= 1; i--)
+	{
+		int temp = Arr[0];
+		Arr[0] = Arr[i];
+		Arr[i] = temp;
+		createheap(Arr, 0, i - 1);
+	}
+}
+
+int Array::binarySearch(int *Arr, int N, int searchelem)
 {
 	
 		int left = 0;
@@ -108,40 +134,45 @@ int Massiv::binarySearch(int *Arr, int N, int searchelem)
 		}
 	
 }
-void Massiv::quickSort(int *Arr, int left, int N)
+
+void Swap(int& firstelem, int& secondelem)//меняем элементы местами
 {
-	int helpelem; // вспомогательный элемент, который в теории нам помогает
-	int l_hold = left; //левая граница(Сюзанна)
-	int r_hold = N; // правая граница(Владимир)
-	helpelem = Arr[left];
-	while (left < N) // пока Сюзанна и Владимир не встретятся
+	const int helpswap = firstelem;
+	firstelem = secondelem;
+	secondelem = helpswap;
+}
+int partition(int *Arr, int beginindex, int lastindex)
+{
+	const int last = Arr[lastindex];
+	int i = beginindex - 1;
+	for (int j = beginindex; j < lastindex; j++)
 	{
-		while ((Arr[N] >= helpelem) && (left < N))
-			N--; // сдвигаем правую границу(Владимира) 
-		if (left != N) // Сюзанна и Владимир все еще не вместе,какая жалость,делаем все,чтобы они были вместе
+		if (Arr[j] <= last)
 		{
-			Arr[left] = Arr[N]; // сдвиги
-			left++; 
-		}
-		while ((Arr[left] <= helpelem) && (left < N))
-			left++; 
-		if (left != N) // если все наши усилия напрасны, вызываем Гузееву
-		{
-			Arr[N] = Arr[left]; 
-			N--;  
+			i++;
+			Swap(Arr[i], Arr[j]);
 		}
 	}
-	Arr[left] = helpelem; 
-	helpelem = left;
-	left = l_hold;
-	N= r_hold;
-	if (left < helpelem) // Рекурсивно вызываем сортировку для левой и правой части массива
-		quickSort(Arr, left, helpelem - 1);
-	if (N > helpelem)
-		quickSort(Arr, helpelem + 1, N);
-	//когда-то это сработает.А вообще Сюзанне стоит поискать Владимира посговорчивей. 
+	Swap(Arr[lastindex], Arr[i + 1]);
+	return i + 1;
 }
-void Massiv::bubble_sort(int *Arr, int N)
+int* Sort_part(int* Arr, int beginindex, int lastindex)
+{
+	if (beginindex < lastindex)
+	{
+		const int middleIndex = partition(Arr, beginindex, lastindex);
+		Sort_part(Arr, beginindex, middleIndex - 1);
+		Sort_part(Arr, middleIndex + 1, lastindex);
+	}
+	return Arr;
+}
+
+int* Array::quickSort(int* Arr,size_t N)
+{
+	const auto toIndex = N - 1;
+	return Sort_part(Arr, 0, toIndex);
+}
+void Array::bubble_sort(int *Arr, int N)
 {
 	int i = 0;
 	int buf;
@@ -189,7 +220,7 @@ void bogoSort(int *Arr, int N)
 		shuffle(Arr, N);
 }
 
-void Massiv::Bogo_sort(int *Arr, int N)
+void Array::Bogo_sort(int *Arr, int N)
 {
 	
 		correct(Arr, N);
@@ -197,10 +228,10 @@ void Massiv::Bogo_sort(int *Arr, int N)
 
 		bogoSort(Arr, N);
 }
-void Massiv::CountingSort(char* Arr, int N)
+void Array::CountingSort(char* Arr, int N)
 {
-		size_t* SortingArray = new size_t[127];
-		for (int i = 0; i < 127; i++)
+		size_t* SortingArray = new size_t[127*2];//т.к. диапазон значений char-ов от -127 до 127
+		for (int i = 0; i < 254; i++)
 			SortingArray[i] = 0;
 		for (int i = 0; i < N; i++)
 		{
@@ -209,7 +240,7 @@ void Massiv::CountingSort(char* Arr, int N)
 		}
 		int j = 0;
 
-		for (int i = 0; i < 127; i++)
+		for (int i = 0; i < 254; i++)
 		{
 			while (SortingArray[i] != 0)
 			{
@@ -220,4 +251,5 @@ void Massiv::CountingSort(char* Arr, int N)
 			}
 		}
 }
+
 
