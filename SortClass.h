@@ -230,8 +230,8 @@ void Array::Bogo_sort(int *Arr, int N)
 }
 void Array::CountingSort(char* Arr, int N)
 {
-		size_t* SortingArray = new size_t[127*2];//т.к. диапазон значений char-ов от -127 до 127
-		for (int i = 0; i < 254; i++)
+		size_t* SortingArray = new size_t[127*2+1];//т.к. диапазон значений char-ов от -127 до 127
+		for (int i = 0; i < 255; i++)
 			SortingArray[i] = 0;
 		for (int i = 0; i < N; i++)
 		{
@@ -240,7 +240,7 @@ void Array::CountingSort(char* Arr, int N)
 		}
 		int j = 0;
 
-		for (int i = 0; i < 254; i++)
+		for (int i = 0; i < 255; i++)
 		{
 			while (SortingArray[i] != 0)
 			{
